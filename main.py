@@ -1,21 +1,14 @@
-from spotipy.oauth2 import SpotifyClientCredentials
+from Spotipy.spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 import spotipy.util as util
 import json
+import init
 
 #master user
 users = []
 masteruser = input("Enter the Master User: ") #master user is the user with the token
 users.append({'name': masteruser, 'songs': {}, 'subshared': []})
-
-#initialization and authentication
-scope = 'playlist-modify-public'
-token = util.prompt_for_user_token(users[0]['name'],scope,"56937ed556914553aa22ecedb2fbcc74","d589c26ddb5d4365862fa0056c3431f8","http://localhost:8888/")
-if token:
-    sp = spotipy.Spotify(auth=token)
-    sp.trace = False
-else:
-	print("can't get token")
+sp = init.generate_user(masteruser)
 
 #addusers
 while True:
@@ -28,70 +21,103 @@ while True:
 		users.append({'name': newuserin, 'songs': {}, 'subshared': []})
 
 #common songs
-sharedsongs = {}
-#ordered ranking of how many times it appeared across users
-rankedsongs = []
-rankedid = []
+sharedsongs = []
+sharedids = []
 
-for user in users: #each user
-	all_playlists = sp.user_playlists(user['name']) #list of playlists
-	for playlist in all_playlists['items']: #each playlist
-		if playlist['owner']['uri'].split(':')[2] == user['name']: #if our user is the owner
-			tracks = sp.user_playlist_tracks(user['name'],playlist['id'] ) #broad tracks
-			for item in tracks['items']: #for each broad track
-				user['songs'][item['track']['name']] = item['track']['id']
+def remove_duplicate_songs(songs):
+    result = {}
+    for key in songs:
+        if key not in result.keys():
+            result[key] = songs[key]
+    return result
+
+def remove_deplicates(songs):
+    result = []
+    for song in songs:
+        if song not in result:
+            result.append(song)
+    return result
+
+def binary_search_song(song,songdict):
+    songlist = list(songdict.keys())
+    songlist.sort()
+    ub = len(songlist)-1
+    lb = 0
+    for x in range(100):
+        index = (ub+lb)//2
+        if songlist[index] == song:
+            return True
+        if songlist[index]>song:
+            ub = index
+        else:
+            lb = index
+
+def count_num(song, songlist):
+    result = 0
+    for s in songlist:
+        if song == s:
+            result += 1
+    return result
+
+def rank_off_occurances(songs):
+    songs.sort()
+    result = []
+    most_occurances = 0
+    for song in songs:
+        num = count_num(song,songs)
+        if num>most_occurances:
+            most_occurances = num
+    level = most_occurances
+    while level>0:
+        for song in songs:
+            if count_num(song,songs) == level:
+                result.append(song)
+        level -= 1
+    result = remove_deplicates(result)
+    return result
+
+percent_tracker = 0 #thing to track percent completeion
+
+#each user, initialize a dictionary of unique songs
+for user in users:
+    percent_tracker += 1
+    all_playlists = sp.user_playlists(user['name']) #list of playlists
+    for playlist in all_playlists['items']: #each playlist
+        if playlist['owner']['uri'].split(':')[2] == user['name']: #if our user is the owner
+            tracks = sp.user_playlist_tracks(user['name'],playlist['id'] ) #broad tracks
+            for item in tracks['items']: #for each broad track
+                user['songs'][item['track']['name']] = item['track']['id']
+    user['songs'] = remove_duplicate_songs(user['songs'])
+    print(str(percent_tracker*50//len(users)) + "%")
+
+total_searches = len(users)*(len(users)-1)/2
+percent_tracker = 0 #variables used to update percent completeion
+
+for index1 in range(len(users)):
 	#create list of common songs
-	for user2 in users:
-		if user != user2:
-			for song in user['songs']:
-				for song2 in user2['songs']:
-					if user['songs'][song] == user2['songs'][song2] and song == song2: #songs equal?
-						if not song in user['subshared']:
-							user['subshared'].append(song)
-							if song in sharedsongs.keys():
-								sharedsongs[song][user['songs'][song]] += 1
-							else:
-								sharedsongs[song] = {user['songs'][song]: 1}
-						if not song2 in user2['subshared']:
-							user2['subshared'].append(song2)
-							if song2 in sharedsongs.keys():
-								sharedsongs[song][user2['songs'][song2]] += 1 
-							else:
-								sharedsongs[song] = {user2['songs'][song2]: 1}
+    for index2 in range(index1+1,len(users)):
+        percent_tracker+=1
+        if len(users[index1]['songs'].keys()) >0 and len(users[index2]['songs'].keys())>0:
+            for song in users[index1]['songs']:
+                if binary_search_song(song,users[index2]['songs']):
+                    sharedsongs.append(song)
+                    sharedids.append(users[index1]['songs'][song])
+            print(str(int(50 + (percent_tracker*50)//total_searches)) + "%")
 
-#sort shared songs
-highest = 0
-while len(rankedsongs) != len(sharedsongs.keys()):
-	for song in sharedsongs: #find highest count
-		for key in sharedsongs[song]:
-			if sharedsongs[song][key] > highest and not song in rankedsongs: #if highest
-				highest = sharedsongs[song][key]
-			if sharedsongs[song][key] == highest and song in rankedsongs: #if highest has already been added
-				highest = 0
-	for song in sharedsongs: #if highest count
-		for key in sharedsongs[song]:
-			if sharedsongs[song][key] == highest:
-				rankedsongs.append(song)
-				rankedid.append(key)
+sharedsongs = rank_off_occurances(sharedsongs)
+sharedids = rank_off_occurances(sharedids)
 
-for songname in rankedsongs:
-	for user in users:
-		for song in user['songs']:
-			if songname == song and not user['songs'][song] in rankedid:
-				rankedid.append(user['songs'][song])
-#double check no duplicates
-for ii in range(0,len(rankedid)):
-	for cc in range(0,len(rankedid)):
-		if cc != ii and rankedid[ii] == rankedid[cc]:
-			rangeid.pop[cc]
+max_length = int(input("Enter a Maximum Number of Songs: "))
+if max_length > 99:
+    max_length = 99
 
-print(sharedsongs)
+while len(sharedsongs)>=max_length:
+    sharedsongs.pop()
+    sharedids.pop()
 
 #create playlist
-while len(rankedid)>100:
-	rankedid.pop()
 playname = input("Enter a Name for the Playlist: ")
 playlist = sp.user_playlist_create(users[0]['name'], playname)
-sp.user_playlist_add_tracks(users[0]['name'],playlist['id'], rankedid)
+sp.user_playlist_add_tracks(users[0]['name'],playlist['id'], sharedids)
 
 print("Success! Playlist Created")
