@@ -1,28 +1,24 @@
-from Spotipy.spotipy.oauth2 import SpotifyClientCredentials
-import spotipy
-import spotipy.util as util
-import json
 import init
-
-#master user
-users = []
-masteruser = input("Enter the Master User: ") #master user is the user with the token
-users.append({'name': masteruser, 'songs': {}, 'subshared': []})
-sp = init.generate_user(masteruser)
 
 #addusers
 while True:
-	newuserin = input("Enter a New User or Type 'Done': ")
-	if newuserin == 'Done' and len(users)>=2:
-		break
-	elif newuserin == 'Done' and len(users) <2:
-		print("You Need at Least Two Users")
-	elif not newuserin in users:
-		users.append({'name': newuserin, 'songs': {}, 'subshared': []})
+    newuserin = input("Enter a New User or Type 'Done': ")
+    if newuserin == 'Done' and len(users)>=2:
+        break
+    elif newuserin == 'Done' and len(users) <2:
+	print("You Need at Least Two Users")
+    elif not newuserin in users:
+	users.append({'name': newuserin, 'songs': {}, 'subshared': []})
 
-#common songs
-sharedsongs = []
-sharedids = []
+def main():
+    #master user
+    users = []
+    masteruser = input("Enter the Master User: ") #master user is the user with the token
+    users.append({'name': masteruser, 'songs': {}, 'subshared': []})
+    sp = init.generate_user(masteruser)
+    #common songs
+    sharedsongs = []
+    sharedids = []
 
 def remove_duplicate_songs(songs):
     result = {}
