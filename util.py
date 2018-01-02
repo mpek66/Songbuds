@@ -12,7 +12,7 @@ def generate_master_user(username):
         sp.trace = False
         return sp
     else:
-        return none
+        return None
 
 #takes a user, and a spotify object and returns unique songs
 def generate_songs(auser, sp):

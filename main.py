@@ -97,7 +97,7 @@ def rank_off_occurances(songs):
     most_occurances = 0
     for song in songs:
         num = count_num(song,songs)
-        if num>most_occurances:
+        if num > most_occurances:
             most_occurances = num
     level = most_occurances
     while level>0:
@@ -105,7 +105,7 @@ def rank_off_occurances(songs):
             if count_num(song,songs) == level:
                 result.append(song)
         level -= 1
-    result = remove_deplicates(result)
+    result = remove_duplicates(result)
     return result
 
 def main():
@@ -121,6 +121,7 @@ def main():
     ix = 0
     while ix < len(users):
         users[ix] = util.generate_songs(users[ix], sp)
+        ix += 1
     #generate list of common songs and ids
     print("Got Songs")
     sharedsongs = []
@@ -128,21 +129,27 @@ def main():
     fix = 0
     while fix < len(users):
         six = fix + 1
-        while six < len(users[six:]):
-            subsharedsongs = merge(users[fix]['songs'].keys().sort(), \
-                              users[six]['songs'].keys().sort())
-            subsharedids = merge(users[fix]['songs'].values().sort(), \
-                              users[six]['songs'].values().sort())
+        while six < len(users):
+            #get lists of songs and ids
+            fsongs = list(users[fix]['songs'].keys())
+            fids = list(users[fix]['songs'].values())
+            ssongs = list(users[six]['songs'].keys())
+            sids = list(users[six]['songs'].values())
+            #sort songs and ids
+            fsongs.sort()
+            fids.sort()
+            ssongs.sort()
+            sids.sort()
+            #find shared songs
+            subsharedsongs = merge(fsongs, ssongs)
+            subsharedids = merge(fids, sids)
+            #add to shared list
             sharedsongs.extend(subsharedsongs)
             sharedids.extend(subsharedids)
             six += 1
         fix += 1
     print("Sorted songs")
 
-    #create playlist
-    playname = input("Enter a Name for the Playlist: ")
-    playlist = sp.user_playlist_create(users[0]['name'], playname)
-    sp.user_playlist_add_tracks(users[0]['name'],playlist['id'], sharedids)
     sharedsongs = rank_off_occurances(sharedsongs)
     sharedids = rank_off_occurances(sharedids)
 
@@ -150,37 +157,16 @@ def main():
     if max_length > 99:
         max_length = 99
 
-    while len(sharedsongs)>=max_length:
-        sharedsongs.pop()
-        sharedids.pop()
+    sharedsongs = sharedsongs[:max_length]
+    sharedids = sharedids[:max_length]
+    
+    #create playlist
+    sp = util.generate_master_user(masteruser)
+    playname = input("Enter a Name for the Playlist: ")
+    playlist = sp.user_playlist_create(users[0]['name'], playname)
+    sp.user_playlist_add_tracks(users[0]['name'],playlist['id'], sharedids)
+    
     print("Success! Playlist Created")
 
 if __name__ == "__main__":
     main()
-        
-'''
-total_searches = len(users)*(len(users)-1)/2
-percent_tracker = 0 #variables used to update percent completeion
-
-for index1 in range(len(users)):
-    #create list of common songs
-    for index2 in range(index1+1,len(users)):
-        percent_tracker+=1
-        if len(users[index1]['songs'].keys()) >0 and len(users[index2]['songs'].keys())>0:
-            for song in users[index1]['songs']:
-                if binary_search_song(song,users[index2]['songs']):
-                    sharedsongs.append(song)
-                    sharedids.append(users[index1]['songs'][song])
-            print(str(int(50 + (percent_tracker*50)//total_searches)) + "%")
-
-sharedsongs = rank_off_occurances(sharedsongs)
-sharedids = rank_off_occurances(sharedids)
-
-max_length = int(input("Enter a Maximum Number of Songs: "))
-if max_length > 99:
-    max_length = 99
-
-while len(sharedsongs)>=max_length:
-    sharedsongs.pop()
-    sharedids.pop()
-'''
