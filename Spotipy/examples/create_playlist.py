@@ -9,14 +9,14 @@ import spotipy
 import spotipy.util as util
 
 
-if len(sys.argv) > 2:
-    username = sys.argv[1]
-    playlist_name = sys.argv[2]
+if True:
+    username = 'bobzoo00'
+    playlist_name = 'hello'
 else:
     print("Usage: %s username playlist-name" % (sys.argv[0],))
     sys.exit()
 
-token = util.prompt_for_user_token(username)
+token = util.prompt_for_user_token(username, "playlist-modify-public", "56937ed556914553aa22ecedb2fbcc74","d589c26ddb5d4365862fa0056c3431f8","http://localhost:8888")
 
 if token:
     sp = spotipy.Spotify(auth=token)

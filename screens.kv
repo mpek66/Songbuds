@@ -1,0 +1,82 @@
+#: import sm kivy.uix.screenmanager
+
+<Manager>:
+	transition: sm.NoTransition()
+	LoginScreen:
+	VerificationScreen:
+	HomeScreen:
+	CreateScreen:
+	FriendsScreen:
+
+<LoginScreen>:
+	name: "login"
+	id: login
+	BoxLayout:
+		id: layout
+		orientation: "vertical"
+		DynamicLabel:
+			text: "Welcome to Songbuds!"
+			font_size: 50
+			size_hint_y: .4
+		LabeledInput:
+			id: user_input
+			prompt: "Enter a Username: "
+			size_hint_y: .2
+		LabeledCheck:
+			id: remember_input
+			prompt: "Remember Me: "
+			size_hint_y: .1
+		Button:
+			on_release: app.login(user_input.my_input, remember_input.my_input)
+			text: 'Verify Username'
+			font_size: 24
+			size_hint_y: .3
+
+<VerificationScreen>:
+	name: 'verification'
+	id: verification
+	BoxLayout:
+	Button: 
+		on_release: app.root.current = 'home'
+		text: 'Verify Username'
+		font_size: 24
+
+<HomeScreen>:
+	name: 'home'
+	id: home
+	BlankLayout:
+		BoxLayout:
+			id: layout
+			orientation: 'vertical'
+			padding: [10,10,10,10]
+			DynamicLabel:
+				text: "Welcome, " + app.master + "!"
+			DynamicLabel:
+				text: "Level: " + str(app.level)
+			DynamicLabel:
+				text: "Songs Generated: " + str(app.songs_generated)
+
+<CreateScreen>:
+	name: 'create'
+	id: create
+	BlankLayout:
+		BoxLayout:
+			id: layout
+			orientation: 'vertical'
+			padding: [10,10,10,10]
+			AlgorithmSelector:
+				center: root.center
+			UserManager:
+				id: users
+			LabeledInput:
+				id: playname
+				prompt: "Playlist name: "
+			Button:
+				text: "Create Playlist!"
+				on_release: app.create_playlist(users.user_list.adapter.data, playname.my_input)
+
+<FriendsScreen>:
+	name: 'friends'
+	id: friends
+	BlankLayout:
+		Label:

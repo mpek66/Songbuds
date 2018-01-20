@@ -1,0 +1,119 @@
+#: import code AppObjects
+#: import ListAdapter kivy.adapters.listadapter.ListAdapter
+#: import ListItemButton kivy.uix.listview.ListItemButton
+
+<LabeledInput>:
+	id: top_level
+	my_input: input.text
+	BoxLayout:
+		id: layout
+		orientation: "horizontal"
+		DynamicLabel
+			id: label
+			text: top_level.prompt
+		TextInput:
+			id: input
+
+<LabeledCheck>:
+	id: top_level
+	my_input: input.active
+	BoxLayout:
+		id: layout
+		orientation: "horizontal"
+		DynamicLabel:
+			id: label
+			text: top_level.prompt
+		CheckBox:
+			id: input
+
+<Navigation>:
+	pos_hint: {"top": 1}
+	orientation: 'horizontal'
+	padding: [4,4,4,4]
+	canvas.before:
+		Color:
+			rgb: 128/255, 0, 128/255
+		Rectangle:
+			pos: self.pos
+			size: self.size
+	Label:
+		size_hint_x: .1
+	Button:
+		size_hint: None, None
+		size: 64, 64
+		border: (0,0,0,0)
+		background_normal: "resources/logo.PNG"
+		background_down: "resources/logo_down.PNG"
+		on_release: app.root.current = 'home'
+	Label:
+		size_hint_x: .3
+	Button:
+		size_hint: None, None
+		size: 64, 64
+		border: (0,0,0,0)
+		background_normal: "resources/create_icon.PNG"
+		background_down: "resources/create_icon_down.PNG"
+		on_release: app.root.current = 'create'
+	Label:
+		size_hint_x: .3
+	Button:
+		size_hint: None, None
+		size: 64, 64
+		border: (0,0,0,0)
+		background_normal: "resources/friends_icon.PNG"
+		background_down: "resources/friends_icon_down.PNG"
+		on_release: app.root.current = 'friends'
+	Label:
+		size_hint_x: .1
+
+<BlankLayout>:
+	orientation: 'vertical'
+	canvas.before:
+		Color:
+			rgb: .2, .2, .2
+		Rectangle:
+			pos: self.pos
+			size: self.size
+	Navigation:
+		size_hint_y: None
+		height: 72
+
+<AlgorithmSelector>:
+	orientation: 'horizontal'
+	DynamicLabel:
+		text: "Algorithm: "
+	Spinner:
+		text: "Version 1"
+		values: "v1", "v2", "v3"
+
+<InputBox>:
+	size_hint: (.8,.3)
+	BoxLayout:
+		orientation: "vertical"
+		TextInput:
+			id: input
+		BoxLayout:
+			orientation: 'horizontal'
+			Button:
+				text: "Submit"
+				on_release: root.return_input(input.text)
+			Button:
+				text: "Cancel"
+				on_release: root.dismiss()
+<UserManager>:
+	orientation: 'horizontal'
+	user_list: user_list_view
+	users: self.user_list.adapter.data
+	BoxLayout:
+		orientation: 'vertical'
+		Button:
+			text: 'Add User'
+			on_release: root.add_user()
+		Button:
+			text: 'Remove User'
+			on_release: root.remove_user()
+	
+	ListView:
+		id: user_list_view
+		adapter:
+			ListAdapter(data= [app.master], cls= code.UserItem)
