@@ -1,33 +1,33 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Ping from '@/components/Ping';
-import Songs from '@/components/Songs';
-import Login from '@/components/Login';
-import Home from '@/components/Home';
+import login from '@/ui/login/login';
+import home from '@/ui/home/home';
+import load from '@/ui/load/load';
+import create from '@/ui/create/create';
 
 Vue.use(Router);
 
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'Songs',
-      component: Songs,
-    },
-    {
-      path: '/ping',
-      name: 'Ping',
-      component: Ping
-    },
-    {
       path: '/login',
-      name: 'Login',
-      component: Login
+      name: 'login',
+      component: login
+    },
+    {
+      path: '/load',
+      name: 'load',
+      component: load
     },
     {
       path: '/home',
-      name: 'Home',
-      component: Home
+      name: 'home',
+      component: home
+    },
+    {
+      path: '/create',
+      name: 'create',
+      component: create
     }
   ],
   mode: 'history',

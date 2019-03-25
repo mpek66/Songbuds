@@ -41,12 +41,18 @@ auth_query_parameters = {
     "client_id": CLIENT_ID
 }
 
+@authenticator.route("/session")
+def get_session():
+    if "profile_data" in session:
+        return jsonify(data=session["profile_data"])
+    else:
+        return jsonify(data=False)
+
 @authenticator.route("/authorize")
 def index():
     # Auth Step 1: Authorization
     url_args = ""
     for (key, val) in auth_query_parameters.items():
-        print(key, val)
         url_args += "{}={}".format(key, urllib.parse.quote(val)) + "&"
     url_args = url_args[:-1]
     auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
@@ -90,8 +96,7 @@ def callback():
     #playlist_api_endpoint = "{}/playlists".format(profile_data["href"])
     #playlists_response = requests.get(playlist_api_endpoint, headers=authorization_header)
     #playlist_data = json.loads(playlists_response.text)
-
-    return redirect("http://localhost:8080/home")
+    return redirect("http://localhost:8080/load")
 
 @authenticator.route("/get_playlists")
 def get_playlists():
@@ -113,3 +118,45 @@ def get_all_songs():
         for track in track_data["items"]:
             songs.append(track["track"]["name"])
     return jsonify(songs)
+
+@authenticator.route("/get_user_songs")
+def get_user_songs():
+    userid = request.args.get("username")
+    return jsonify(load_user_songs(userid))
+
+@authenticator.route("/generate_playlist")
+def generate_playlist():
+    users = request.args.getlist("users[]")
+    name = request.args.get("name")
+    print(users)
+    print("here")
+    songs = load_common_songs(users)
+    return jsonify(songs)
+
+def create_playlist(name,songs):
+    pass
+
+def load_user_songs(userid):
+    playlist_api_endpoint = "{}/v1/users/{}/playlists".format(SPOTIFY_API_BASE_URL,userid)
+    playlists_response = requests.get(playlist_api_endpoint, headers=session["authorization_header"])
+    playlist_data = json.loads(playlists_response.text)
+    songs = []
+    for playlist in playlist_data["items"]:
+        tracks_api_endpoint = "{}/playlists/{}/tracks".format(SPOTIFY_API_URL, playlist["id"])
+        tracks_response = requests.get(tracks_api_endpoint, headers=session["authorization_header"])
+        track_data = json.loads(tracks_response.text)
+        for track in track_data["items"]:
+            songs.append(track["track"]["name"])
+    return songs
+
+def load_common_songs(users):
+    allsongs = []
+    finalsongs = []
+    for user in users:
+        songs = load_user_songs(user)
+        for song in songs:
+            if song not in allsongs:
+                allsongs.append(song)
+            elif song not in finalsongs:
+                finalsongs.append(song)
+    return finalsongs
