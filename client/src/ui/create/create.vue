@@ -1,6 +1,5 @@
 <template>
   <div style="height: 100vh; width: 100vw; overflow: hidden">
-    <navigation></navigation>
     <div class="create-background d-flex justify-content-center ">
       <div class="main">
         <div class="section">
@@ -8,7 +7,7 @@
           <h6 class="section-desc">How would you like this playlist to be generated?</h6>
           <div class="row equal">
             <label class="col col-md-3 alglabel">
-              <input type="radio" name="alg" value="one" v-model="algorithm"/>
+              <input type="radio" name="alg" value="basic" v-model="algorithm"/>
               <div class="card algcard">
                 <div class="card-body">
                   <h5 class="card-title">Basic</h5>
@@ -53,30 +52,21 @@
             </label>
           </div>
         </div>
-        <div v-if="algorithm == 'one'" class="section">
-          <h1 class="section-head">2. Select Users</h1>
-          <h6 class="section-desc">List off the usernames of everyone you want to listen with.</h6>
-          <div class="row equal">
-            <div class="col col-md-8">
-              <h5>Search</h5>
-              <add-user v-on:add="addUser"></add-user>
-              <h5>Current Group</h5>
-              <group-member v-for="user in group"
-                v-bind:username="user"
-                v-on:remove="removeUser">
-              </group-member>
-            </div>
-            <div class="col col-md-4">
-              <h5>Friends</h5>
-              <add-friend
-                v-on:add="addUser"
-                v-on:remove="removeUser">
-              </add-friend>
-            </div>
-          </div>
-          <h1 class="section-head">3. Options</h1>
-          <h6 class="section-desc">Tweak how the algorithm works.</h6>
+        <div v-if="algorithm == 'basic'" class="section">
+          <select-users class="section"
+            :number="2">
+          </select-users>
+          <basic-options class="section"
+            :number="3">
+          </basic-options>
+          <playlist-info class="section"
+            :number="4">
+          </playlist-info>
+          <generate class="section"
+            :number="5">
+          </generate>
         </div>
+        <div class="footer"></div>
       </div>
     </div>
   </div>
@@ -84,10 +74,10 @@
 
 <script>
 import axios from 'axios';
-import Navigation from '../../components/navigation/navigation';
-import GroupMember from '@/components/group-member/group-member';
-import AddUser from '@/components/add-user/add-user';
-import AddFriend from '@/components/add-friend/add-friend';
+import SelectUsers from './select-users';
+import PlaylistInfo from './playlist-info';
+import BasicOptions from './basic/basic-options';
+import Generate from './generate';
 
 export default {
   name: 'create',
@@ -96,74 +86,56 @@ export default {
       songs: [],
       group: ["mpek66","ben sucks"],
       algorithm: "",
+      generating: false,
     };
   },
   methods: {
-    getUserSongs() {
-      const path = 'http://127.0.0.1:5000/get_user_songs';
-      axios.get(path, {params: {username: "mpek66"}})
-        .then((res) => {
-          this.songs = res.data;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    },
     generatePlaylist() {
-      const path = 'http://127.0.0.1:5000/generate_playlist';
-      axios.get(path, {params: {name: "test", users: ["mpek66", "bobzoo00"]}})
-        .then((res) => {
-          this.songs = res.data;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+
     },
-    addUser(username) {
-      var inlist = false;
-      for(var ix=0; ix<this.group.length; ix++){
-        if(this.group[ix] == username){
-          inlist = true;
-        }
-      }
-      if(!inlist){
-        this.group.push(username);
-      }
-    },
-    removeUser(username) {
-      var result = [];
-      for(var ix=0; ix<this.group.length; ix++){
-        if(this.group[ix] != username){
-          result.push(this.group[ix]);
-        }
-      }
-      this.group = result;
-    }
   },
   components: {
-    'navigation': Navigation,
-    'group-member': GroupMember,
-    'add-user': AddUser,
-    'add-friend': AddFriend,
+    'select-users': SelectUsers,
+    'basic-options': BasicOptions,
+    'playlist-info': PlaylistInfo,
+    'generate': Generate,
   },
   created() {
     if(!this.$session.exists()){
       //this.$router.push("/login");
     }
   },
+  beforeDestroy() {
+  },
+  watch: {
+    algorithm(newAlgorithm) {
+      setTimeout(() => {
+        // need to wait so the new generate instance can come into play
+        this.$eventHub.$emit("create-current-algorithm", newAlgorithm);
+      }, 1);
+    }
+  }
 };
 </script>
 
 <style>
 .create-background {
   background-color: rgb(250,250,250);
+  position: fixed;
+  top: 50px;
+  left: 0px;
   height: calc(100% - 50px);
   width: calc(100vw);
   overflow-y: scroll;
+  padding: 50px;
 }
 
 .main {
   width: calc(66vw);
+}
+
+.footer {
+  height: 25px;
 }
 
 .alglabel {
@@ -193,7 +165,7 @@ export default {
 
 .alglabel > input:disabled + div {
   cursor: not-allowed;
-  background-color: rgb(100,0,0);
+  background-color: rgb(100,75,75);
   border: 1px solid rgb(0,0,0);
 }
 
@@ -204,11 +176,15 @@ export default {
   border-radius: 0px;
 }
 
-.section-head {
+.section {
+  padding-bottom: 25px;
+}
+
+.section > h1 {
 
 }
 
-.section-desc {
+.section > h6 {
   color: rgb(115,115,115);
 }
 </style>

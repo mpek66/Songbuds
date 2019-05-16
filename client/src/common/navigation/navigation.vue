@@ -1,23 +1,36 @@
 <template>
-  <div style="height:50px; width: 100vw">
-  <b-navbar
-    toggleable="sm"
-    sticky="true">
-    <b-navbar-brand href="#">Songbuds</b-navbar-brand>
-    <b-navbar-toggle
-      target="navCollapse">
-    </b-navbar-toggle>
-    <b-collapse is-nav id="navCollapse">
-      <b-navbar-nav class="ml-auto">
-        <b-nav-item to="home">Home</b-nav-item>
-        <b-nav-item to="create">Create</b-nav-item>
-        <b-nav-item>Friends</b-nav-item>
-        <b-nav-item>Account</b-nav-item>
-      </b-navbar-nav>
-    </b-collapse>
-  </b-navbar>
+  <div style="height:50px; width: 100vw; position: fixed; top: 0px; left: 0px; z-index: 999">
+    <b-navbar
+      toggleable="sm"
+      sticky="true">
+      <b-navbar-brand href="#">Songbuds</b-navbar-brand>
+      <b-navbar-toggle
+        target="navCollapse">
+      </b-navbar-toggle>
+      <b-collapse is-nav id="navCollapse">
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item to="home">Home</b-nav-item>
+          <b-nav-item to="create">Create</b-nav-item>
+          <b-nav-item>Friends</b-nav-item>
+          <b-nav-item>Account</b-nav-item>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+    <flash-notification></flash-notification>
   </div>
 </template>
+
+<script>
+import FlashNotification from '@/common/flash/flash-notification';
+
+export default {
+  name: "navigation",
+  components: {
+    'flash-notification': FlashNotification,
+  }
+}
+
+</script>
 
 <style>
 .navbar {

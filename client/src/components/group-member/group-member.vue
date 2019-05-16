@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     remove() {
-      this.$emit("remove", this.username);
+      this.$eventHub.$emit("create-user-removed", this.username);
     },
   },
   components: {

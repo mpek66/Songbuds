@@ -124,17 +124,43 @@ def get_user_songs():
     userid = request.args.get("username")
     return jsonify(load_user_songs(userid))
 
-@authenticator.route("/generate_playlist")
+"""
+takes data of the form:
+algorithm: String,
+group: List,
+options: Object,
+    depends on algorithm
+playlistInfo: Object
+    name: String,
+    desc: String,
+    maxSongs: Number,
+"""
+@authenticator.route("/generate_playlist", methods=["POST"])
 def generate_playlist():
-    users = request.args.getlist("users[]")
-    name = request.args.get("name")
-    print(users)
-    print("here")
-    songs = load_common_songs(users)
-    return jsonify(songs)
+    data = request.get_json()
+    algorithm = data["algorithm"]
+    songs = []
+    status = "SUCCESS"
+    if algorithm != "basic":
+        group = data["group"]
+        songs = load_common_songs(group)
+    playlistInfo = data["playlistInfo"]
+    create_playlist(songs, playlistInfo)
+    return jsonify({"status": status, "data": songs})
 
-def create_playlist(name,songs):
-    pass
+def create_playlist(songs, playlistInfo):
+    userid = session["profile_data"]["id"]
+    playlist_api_endpoint = "{}/v1/users/{}/playlists".format(SPOTIFY_API_BASE_URL,userid)
+    headers = {
+        "Authorization": session["authorization_header"]["Authorization"],
+        "Content-Type": "application/json",
+    }
+    data = {
+        "name": playlistInfo["name"],
+        "public": True,
+        "description": playlistInfo["description"],
+    }
+    playlists_response = requests.post(playlist_api_endpoint, headers=headers, data=json.dumps(data))
 
 def load_user_songs(userid):
     playlist_api_endpoint = "{}/v1/users/{}/playlists".format(SPOTIFY_API_BASE_URL,userid)

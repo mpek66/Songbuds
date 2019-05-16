@@ -16,19 +16,29 @@ export default {
   name: 'friend',
   data() {
     return {
-      username: "hello",
       ingroup: false,
     };
   },
   props: {
+    username: String,
   },
   methods: {
     toggle() {
       if (!this.ingroup) {
-        this.$emit("add", this.username);
+        this.$eventHub.$emit("create-user-added", this.username);
         this.ingroup = true;
       } else {
-        this.$emit("remove", this.username);
+        this.$eventHub.$emit("create-user-removed", this.username);
+        this.ingroup = false;
+      }
+    },
+    checkIn(user) {
+      if (user == this.username) {
+        this.ingroup = true;
+      }
+    },
+    checkOut(user) {
+      if (user == this.username) {
         this.ingroup = false;
       }
     }
@@ -36,8 +46,12 @@ export default {
   components: {
   },
   created() {
+    this.$eventHub.$on("create-user-added", this.checkIn);
+    this.$eventHub.$on("create-user-removed", this.checkOut);
   },
   beforeDestroy() {
+    this.$eventHub.$off("create-user-added");
+    this.$eventHub.$off("create-user-removed");
   },
 };
 </script>
@@ -46,16 +60,19 @@ export default {
 .outside {
   width: 100%;
   height: 40px;
+  overflow-y: wrap;
 }
 
 .not-ingroup {
   border: solid 1px rgb(240,240,240);
   background-color: white;
+  overflow-y: wrap;
 }
 
 .ingroup {
   border: solid 1px rgb(190,180,190);
   background-color: rgb(235,230,235);
+  overflow-y: wrap;
 }
 
 .name {

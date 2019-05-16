@@ -1,11 +1,14 @@
 <template>
   <div>
-    <ul class="list-group list-group-flush">
-      <friend
-        v-on:add="add"
-        v-on:remove="remove"></friend>
-      <friend></friend>
+    <ul class="list-group list-group-flush"
+      v-if="friends.length > 0" id="friend-list-add-friend">
+      <friend v-for="myfriend in friends"
+        v-bind:username="myfriend">
+      </friend>
     </ul>
+    <p v-else>
+      You have no friends.
+    </p>
   </div>
 </template>
 
@@ -20,14 +23,9 @@ export default {
     };
   },
   props: {
+    friends: Array,
   },
   methods: {
-    add(username) {
-      this.$emit("add",username);
-    },
-    remove(username) {
-      this.$emit("remove",username);
-    }
   },
   components: {
     "friend": Friend,
@@ -40,29 +38,7 @@ export default {
 </script>
 
 <style>
-.btn-member {
-  color: #212529;
-  background-color: #EBE6EB;
-  border-color: #BEB4BE;
-}
-
-.btn-member:hover,
-.btn-member:focus,
-.btn-member:active,
-.btn-member.active,
-.open .dropdown-toggle.btn-member {
-  color: #212529;
-  background-color: #BEB4BE;
-  border-color: #BEB4BE;
-}
-
-.btn-member.disabled {
-  background-color: #EBE6EB;
-  border-color: #BEB4BE;
-}
-
-.btn-member .badge {
-  color: #EBE6EB;
-  background-color: #212529;
+#friend-list-add-friend {
+  height: 100px;
 }
 </style>

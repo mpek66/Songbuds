@@ -1,6 +1,5 @@
 <template>
   <div style="height: 100vh; width: 100vw; overflow: hidden">
-    <navigation></navigation>
     <div class="row home-background">
       <div class="col col-md-4 leftbar">
         <div class="created-title">
@@ -40,7 +39,7 @@
 
 <script>
 import axios from 'axios';
-import navigation from '../../components/navigation/navigation';
+import navigation from '@/common/navigation/navigation';
 
 export default {
   name: 'home',
@@ -81,6 +80,9 @@ export default {
   height: calc(100% - 50px);
   width: calc(100vw + 15px);
   overflow-x: hidden;
+  position: fixed;
+  top: 50px;
+  left: 0px;
 }
 
 .leftbar {

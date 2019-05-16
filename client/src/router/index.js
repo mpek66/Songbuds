@@ -4,6 +4,7 @@ import login from '@/ui/login/login';
 import home from '@/ui/home/home';
 import load from '@/ui/load/load';
 import create from '@/ui/create/create';
+import party from '@/ui/party/party';
 
 Vue.use(Router);
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/create',
       name: 'create',
       component: create
+    },
+    {
+      path: '/party',
+      name: 'party',
+      component: party
     }
   ],
   mode: 'history',

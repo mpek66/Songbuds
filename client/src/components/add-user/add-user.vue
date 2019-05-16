@@ -25,7 +25,7 @@ export default {
   methods: {
     add() {
       if(this.username != ""){
-        this.$emit("add", this.username);
+        this.$eventHub.$emit("create-user-added", this.username);
         this.username = "";
       }
     }

@@ -3,16 +3,18 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import Vue from 'vue';
 import app from './app';
-import router from './router';
+import Router from './router';
 import BootstrapVue from 'bootstrap-vue';
 import VueSession from 'vue-session';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCoffee, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCoffee, faTimes, faPlus, faChevronCircleDown, faChevronCircleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faCoffee);
 library.add(faTimes);
 library.add(faPlus);
+library.add(faChevronCircleDown);
+library.add(faChevronCircleUp);
 
 Vue.use(VueSession)
 Vue.use(BootstrapVue);
@@ -25,7 +27,7 @@ Vue.prototype.$eventHub = new Vue(); // Global event bus
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  router,
+  router: Router,
   components: { app },
   template: '<app/>',
 });
