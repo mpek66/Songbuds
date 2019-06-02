@@ -92,13 +92,16 @@ export default {
       axios.post(path,data)
         .then((response) => {
           console.log(response);
+          status = response["data"]["status"];
+          data = response["data"]["data"];
           this.generating = false;
-          if (respose["status"] == "SUCCESS") {
+          if (status == "SUCCESS") {
             this.$eventHub.$emit('flash-add-notification', {
               title: "Success",
               text: "Your playlist was created successfully!",
               type: "alert-success",
             });
+            this.$eventHub.$emit('create-playlist-generated');
           } else {
             this.$eventHub.$emit('flash-add-notification', {
               title: "Error",
@@ -106,15 +109,16 @@ export default {
               type: "alert-danger",
             });
           }
-        });
-        setTimeout(() => {
+        })
+        .catch((error) => {
+          console.log(error);
           this.$eventHub.$emit('flash-add-notification', {
             title: "Error",
-            text: "The request timed out.",
+            text: "The request could not be completed.",
             type: "alert-danger",
           });
           this.generating = false;
-        }, 1000);
+        });
     }
   },
   components: {

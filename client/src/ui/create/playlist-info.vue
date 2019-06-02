@@ -47,7 +47,18 @@ export default {
         "maxSongs": this.numSongs,
       };
       this.$eventHub.$emit("create-current-playlist-info", data);
+    },
+    resetInfo() {
+      this.playlistName = "";
+      this.playlistDesc = "";
+      this.numSongs = 100;
     }
+  },
+  created() {
+    this.$eventHub.$on("create-playlist-generated", this.resetInfo);
+  },
+  beforeDestroy() {
+    this.$eventHub.$off("create-playlist-generated");
   },
   watch: {
     playlistName(newPlaylistName) {

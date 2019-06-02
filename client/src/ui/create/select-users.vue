@@ -5,7 +5,8 @@
     <div class="row equal">
       <div class="col col-md-8">
         <h5>Search</h5>
-        <add-user></add-user>
+        <add-user
+          event="create-user-added"></add-user>
         <h5>Current Group</h5>
         <div class="row">
           <div class="col col-sm-6" v-for="user in group">
@@ -62,6 +63,9 @@ export default {
       }
       this.group = result;
     },
+    resetGroup() {
+      this.group = [];
+    }
   },
   components: {
     'group-member': GroupMember,
@@ -71,12 +75,13 @@ export default {
   created() {
     this.$eventHub.$on("create-user-added", this.addUser);
     this.$eventHub.$on("create-user-removed", this.removeUser);
+    this.$eventHub.$on("create-playlist-generated", this.resetGroup);
     this.addUser("mpek66");
   },
   beforeDestroy() {
     this.$eventHub.$off("create-user-added");
     this.$eventHub.$off("create-user-removed");
-    this.$eventHub.$off("create-get-group");
+    this.$eventHub.$off("create-playlist-generated");
   },
   watch: {
     group(newGroup) {

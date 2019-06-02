@@ -5,14 +5,16 @@
     <p>Party mode is the best way to dynamically create a playlist for a group event that
       people can contribute to as they arrive.</p>
     <h6>How does it work?</h6>
-    <p>Start Party Mode by hitting the "Begin Party" button below. You can only hae one party running at a time,
-      but after starting you party mode feel free to log out and log back in to see the same event. You can also
+    <p>Start Party Mode by hitting the "Begin Party" button below. You can only have one party running at a time,
+      but after starting a party feel free to log out and log back without having to destroy your event. You can also
       end the party anytime in the mid-party menu that replaces this screen when a new party begins.</p>
 
-    <p>Party Mode allows each party guest with a Spotify account to add their uniique tastes to the mix. You
+    <p>Party Mode allows each party guest with a Spotify account to add their unique tastes to the mix. You
       can let an algorithm chose what songs it thinks the group of users would enjoy, or you can personalize
       which songs you want to hear on the speakers.</p>
-    <div class="btn btn-start-party">Begin Party</div>
+    <div class="btn btn-start-party"
+      v-on:click="beginParty">Begin Party
+    </div>
   </div>
 
 </template>
@@ -25,6 +27,9 @@ export default {
     };
   },
   methods: {
+    beginParty() {
+      this.$eventHub.$emit('party-start');
+    },
   },
   components: {
   },

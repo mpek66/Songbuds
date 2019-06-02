@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <div class="btn-group">
-      <input class="user-input form-control" placeholder="Enter username"
+  <div style="width: 100%">
+    <div class="user-input btn-group" style="width: 100%">
+      <input class="form-control" placeholder="Enter username"
         v-model="username"
         v-on:keyup.enter="add">
       <div class="btn btn-member" style="width: 40px; margin-left: -5px"
@@ -21,11 +21,15 @@ export default {
     };
   },
   props: {
+    event: {
+      type: String,
+      default: "add-user",
+    },
   },
   methods: {
     add() {
       if(this.username != ""){
-        this.$eventHub.$emit("create-user-added", this.username);
+        this.$eventHub.$emit(this.event, this.username);
         this.username = "";
       }
     }
@@ -41,7 +45,8 @@ export default {
 
 <style>
 .user-input {
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .form-control:focus{

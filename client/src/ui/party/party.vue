@@ -3,7 +3,7 @@
     <div class="party-background d-flex justify-content-center">
       <div class="main">
         <party-info v-if="partyActive == false"></party-info>
-        <div v-if="partyActive == true">hello</div>
+        <party-active v-if="partyActive == true"></party-active>
       </div>
     </div>
   </div>
@@ -12,6 +12,7 @@
 <script>
 import axios from 'axios';
 import PartyInfo from './party-info';
+import PartyActive from './party-active';
 
 export default {
   name: 'party',
@@ -21,16 +22,27 @@ export default {
     };
   },
   methods: {
+    beginParty() {
+      this.partyActive = true;
+    },
+    endParty() {
+      this.partyActive = false;
+    }
   },
   components: {
     'party-info': PartyInfo,
+    'party-active': PartyActive,
   },
   created() {
     if(!this.$session.exists()){
       //this.$router.push("/login");
     }
+    this.$eventHub.$on('party-start', this.beginParty);
+    this.$eventHub.$on('party-end', this.endParty);
   },
   beforeDestroy() {
+    this.$eventHub.$off('party-start');
+    this.$eventHub.$off('party-end');
   },
   watch: {
   }
