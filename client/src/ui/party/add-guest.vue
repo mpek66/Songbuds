@@ -1,5 +1,30 @@
 <template>
   <div class="add-guest-container" style="position: relative">
+    <h3>Enter Your Username</h3>
+    <add-user event="party-lookup-guest"></add-user>
+    <div v-if="result != null" class="show-result">
+      <h5 class="mb-1">
+        <img v-if="result.photo != null" :src="result.photo" class="guest-lookup-photo"/>
+        <small v-else>No photo.</small>
+        <a :href="result.href" target="_blank">
+          {{result.username}}
+        </a>
+      </h5>
+      <div class="guest-response-buttons">
+        <div class="btn btn-primary" style="margin-right: 25px;"
+          @click="addGuest">
+          Correct!
+        </div>
+        <div class="btn btn-warning"
+          @click="resetLookup">
+          Try again.
+        </div>
+      </div>
+    </div>
+    <div v-else class="no-users-found">
+      No users found.
+    </div>
+
     <div v-if="loading" style="height: 100%; width: 100%; position: absolute; top: 0px">
       <div class="d-flex justify-content-center align-items-center load-images-container" style="height:100%; width: 100%">
         <img src="@/assets/bigloadclockwise.gif" style="height: 100%; width: auto"/>
@@ -7,26 +32,6 @@
         <div class="playlist-generating">
         </div>
       </div>
-    </div>
-    <h3>Enter Your Username</h3>
-    <add-user event="party-lookup-guest"></add-user>
-    <div v-if="result != null">
-      <div class="d-flex w-100 justify-content-between show-result">
-        <small>{{result.photo}}</small>
-        <h5 class="mb-1">{{result.username}}</h5>
-        <small>{{result.name}}</small>
-      </div>
-      <div class="guest-response-buttons">
-        <div class="btn btn-primary" style="margin-right: 25px;">
-          Correct!
-        </div>
-        <div class="btn btn-warning">
-          Try again.
-        </div>
-      </div>
-    </div>
-    <div v-else class="no-users-found">
-      No users found.
     </div>
   </div>
 
@@ -45,6 +50,9 @@ export default {
     };
   },
   methods: {
+    resetLookup() {
+      this.result = null;
+    },
     lookupGuest(guestname) {
       /*
       takes a username, returns null or a SINGLE spotify user with the exact username
@@ -54,10 +62,10 @@ export default {
       */
       const path = 'http://127.0.0.1:5000/lookup_guest';
       var data = {
-        username: guestname
+        "username": guestname
       }
       this.loading = true;
-      axios.post(path,data)
+      axios.get(path, {params: data})
         .then((response) => {
           console.log(response);
           this.loading = false;
@@ -65,6 +73,31 @@ export default {
           data = response["data"]["data"];
           if (status == "SUCCESS") {
             this.result = data;
+          } else {
+            this.result = null;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.loading = false;
+        });
+    },
+    addGuest() {
+      const path = 'http://127.0.0.1:5000/add_guest';
+      var data = {
+        "user": this.result.username,
+      }
+      this.loading = true;
+      axios.post(path, data)
+        .then((response) => {
+          console.log(response);
+          this.loading = false;
+          status = response["data"]["status"];
+          data = response["data"]["data"];
+          if (status == "SUCCESS") {
+            this.result = null;
+            this.$eventHub.$emit("party-guest-added", data);
+            alert("about to emit");
           } else {
 
           }
@@ -94,13 +127,13 @@ export default {
   width: 70%;
   height: 250px;
   text-align: center;
-  border: solid black;
 }
 
 .load-images-container {
-  opacity: .5;
+  opacity: .75;
   z-index: 999;
   background-color: rgb(110,110,110);
+  border-radius: 50px;
 }
 
 .show-result {
@@ -114,5 +147,10 @@ export default {
 .no-users-found {
   margin-top: 25px;
   z-index: 0;
+}
+
+.guest-lookup-photo {
+  height: 50px;
+  width: auto;
 }
 </style>

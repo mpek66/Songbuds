@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'party-info',
   data() {
@@ -28,6 +30,16 @@ export default {
   },
   methods: {
     beginParty() {
+      const path = 'http://127.0.0.1:5000/start_party';
+      axios.post(path)
+        .then((response) => {
+          console.log(response);
+          var status = response["data"]["status"];
+          var data = response["data"]["data"];
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       this.$eventHub.$emit('party-start');
     },
   },

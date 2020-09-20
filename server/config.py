@@ -1,1 +1,3 @@
-SQLALCHEMY_DATABASE_URI = "postgresql://postgres:Big@mp0429@localhost:5432/postgres"
+SQLALCHEMY_DATABASE_URI = "sqlite:///app.db"
+SESSION_TYPE = "memcached"
+SECRET_KEY = "super secret key"

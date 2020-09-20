@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100vh; width: 100vw; overflow: hidden">
-    <div class="party-background d-flex justify-content-center">
+    <div v-if="!loading" class="party-background d-flex justify-content-center">
       <div class="main">
         <party-info v-if="partyActive == false"></party-info>
         <party-active v-if="partyActive == true"></party-active>
@@ -19,6 +19,7 @@ export default {
   data() {
     return {
       partyActive: false,
+      loading: true,
     };
   },
   methods: {
@@ -37,6 +38,26 @@ export default {
     if(!this.$session.exists()){
       //this.$router.push("/login");
     }
+    const path = 'http://127.0.0.1:5000/party_exists';
+    axios.get(path)
+      .then((response) => {
+        console.log(response);
+        this.loading=false;
+        var status = response["data"]["status"];
+        var data = response["data"]["data"];
+        if (status == "SUCCESS") {
+          if (data != null) {
+            this.partyActive = true;
+          } else {
+            this.partyActive = false;
+          }
+        } else {
+
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     this.$eventHub.$on('party-start', this.beginParty);
     this.$eventHub.$on('party-end', this.endParty);
   },
@@ -57,7 +78,7 @@ export default {
   left: 0px;
   height: calc(100% - 50px);
   width: calc(100vw);
-  overflow-y: wrap;
+  overflow-y: scroll;
   padding: 50px;
 }
 
